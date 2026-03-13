@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formation | Finance · Conseil · Stratégie</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231D9E75'/><rect x='5' y='7.5' width='3' height='3' rx='0.8' fill='white'/><rect x='10' y='8' width='13' height='2' rx='1' fill='%23A8F0D4'/><rect x='5' y='13.5' width='3' height='3' rx='0.8' fill='white'/><rect x='10' y='14' width='11' height='2' rx='1' fill='%23A8F0D4'/><rect x='5' y='19.5' width='3' height='3' rx='0.8' fill='white'/><rect x='10' y='20' width='8' height='2' rx='1' fill='%23A8F0D4'/><polyline points='20,21 22,24 27,17' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a1a;min-height:100vh;padding:2rem 1rem}
+.container{max-width:860px;margin:0 auto}
+h1{font-size:22px;font-weight:600;margin-bottom:4px}
+.subtitle{font-size:13px;color:#6b6b67;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sync-status{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.sync-ok{background:#E1F5EE;color:#085041}
+.sync-saving{background:#FAEEDA;color:#633806}
+.sync-error{background:#FCEBEB;color:#791F1F}
+.header-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+@media(max-width:600px){.header-stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#fff;border-radius:10px;padding:14px 16px;border:0.5px solid #e0dfd8}
+.stat-label{font-size:10px;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.stat-value{font-size:22px;font-weight:600}
+.stat-sub{font-size:11px;color:#aaa;margin-top:2px}
+.global-bar-wrap{margin-bottom:1.5rem}
+.global-bar-label{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:6px}
+.global-bar{height:8px;background:#e0dfd8;border-radius:4px;overflow:hidden}
+.global-bar-fill{height:100%;background:#1D9E75;border-radius:4px;transition:width .5s}
+.phase{background:#fff;border:0.5px solid #e0dfd8;border-radius:12px;margin-bottom:12px;overflow:hidden}
+.phase-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none}
+.phase-header:hover{background:#fafaf8}
+.phase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.phase-title-wrap{flex:1}
+.phase-title{font-size:14px;font-weight:600}
+.phase-sub{font-size:11px;color:#888;margin-top:2px}
+.phase-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.phase-prog{font-size:11px;color:#888;flex-shrink:0;min-width:36px;text-align:right}
+.phase-chev{font-size:10px;color:#bbb;transition:transform .2s;flex-shrink:0}
+.phase-chev.open{transform:rotate(90deg)}
+.phase-bar-track{height:3px;background:#f0efe8}
+.phase-bar-fill{height:100%;transition:width .4s}
+.phase-body{display:none;border-top:0.5px solid #e0dfd8}
+.phase-body.open{display:block}
+.prereq{font-size:11px;color:#aaa;padding:8px 16px;font-style:italic;background:#fafaf8}
+.module{padding:14px 16px;border-bottom:0.5px solid #f0efe8}
+.module:last-child{border-bottom:none}
+.module-row{display:flex;align-items:flex-start;gap:10px}
+.check{width:18px;height:18px;border-radius:4px;border:1.5px solid #ccc;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;margin-top:2px}
+.check.done{background:#1D9E75;border-color:#1D9E75}
+.check.done::after{content:'';width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px);display:block}
+.mod-info{flex:1}
+.mod-name{font-size:13px;font-weight:600;line-height:1.4}
+.mod-name.done{text-decoration:line-through;color:#bbb}
+.mod-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.tag{font-size:10px;padding:2px 7px;border-radius:10px}
+.tag-time{background:#E6F1FB;color:#0C447C}
+.tag-type{background:#EEEDFE;color:#3C3489}
+.tag-lang{background:#f1efe8;color:#555}
+.tag-new{background:#E1F5EE;color:#085041}
+.mod-desc{font-size:12px;color:#666;margin-top:5px;line-height:1.55}
+.mod-links{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.mod-link{font-size:11px;color:#185FA5;text-decoration:none;display:inline-block}
+.mod-link:hover{text-decoration:underline}
+.mod-note{font-size:10px;color:#aaa;font-style:italic;margin-top:2px}
+.mod-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.hours-input{width:54px;height:28px;font-size:12px;text-align:center;border:0.5px solid #ccc;border-radius:6px;background:#fff;color:#1a1a1a}
+.hours-input:focus{outline:none;border-color:#1D9E75}
+.hours-label{font-size:10px;color:#aaa;text-align:right;line-height:1.3}
+.cas-btn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;font-weight:500;color:#633806;background:#FAEEDA;border:none;border-radius:6px;padding:6px 12px;cursor:pointer}
+.cas-btn:hover{background:#FAC775}
+.cas-panel{display:none;margin-top:10px;border:0.5px solid #e0dfd8;border-radius:8px;overflow:hidden}
+.cas-panel.open{display:block}
+.cas-header{background:#FAEEDA;padding:12px 16px;font-size:12px;font-weight:600;color:#633806}
+.cas-body{background:#fafaf8;padding:16px;font-size:12px;color:#333;line-height:1.7}
+.cas-body h4{font-size:12px;font-weight:600;margin:14px 0 6px;color:#1a1a1a;padding-bottom:4px;border-bottom:0.5px solid #e0dfd8}
+.cas-body h4:first-child{margin-top:0}
+.cas-body ul{padding-left:18px;margin:4px 0}
+.cas-body li{margin-bottom:4px}
+.cas-body p{margin-bottom:6px}
+.cas-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11px}
+.cas-body table th{background:#f0efe8;padding:5px 8px;text-align:left;font-weight:600;border:0.5px solid #e0dfd8}
+.cas-body table td{padding:5px 8px;border:0.5px solid #e0dfd8;vertical-align:top}
+.cas-body .pill{display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;margin-right:4px}
+.pill-blue{background:#E6F1FB;color:#0C447C}
+.pill-green{background:#E1F5EE;color:#085041}
+.pill-amber{background:#FAEEDA;color:#633806}
+.pill-red{background:#FCEBEB;color:#791F1F}
+.pill-purple{background:#EEEDFE;color:#3C3489}
+.cas-body .signal-ok{color:#085041;font-weight:600}
+.cas-body .signal-warn{color:#633806;font-weight:600}
+.cas-body .signal-bad{color:#791F1F;font-weight:600}
+.cas-note{background:#E6F1FB;border-left:3px solid #185FA5;padding:8px 12px;margin:10px 0;font-size:11px;color:#0C447C;border-radius:0 6px 6px 0}
+.cas-warn{background:#FAEEDA;border-left:3px solid #BA7517;padding:8px 12px;margin:10px 0;font-size:11px;color:#633806;border-radius:0 6px 6px 0}
+.cas-danger{background:#FCEBEB;border-left:3px solid #A32D2D;padding:8px 12px;margin:10px 0;font-size:11px;color:#791F1F;border-radius:0 6px 6px 0}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px}
+.reset-btn{font-size:12px;color:#888;cursor:pointer;border:0.5px solid #ddd;border-radius:6px;padding:5px 12px;background:#fff}
+.reset-btn:hover{background:#f5f4f0}
+.footer-tip{font-size:11px;color:#bbb;font-style:italic}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Formation | Finance · Conseil · Stratégie</h1>
+  <p class="subtitle">
+    Formation pré-master · 18 modules · ~200h · 100% gratuit
+    <span class="sync-status sync-ok" id="sync-status">✓ Synchronisé</span><button onclick="forceSync()" id="sync-btn" style="font-size:11px;padding:2px 8px;border-radius:10px;border:0.5px solid #ccc;background:#fff;cursor:pointer;color:#555">⟳ Rafraîchir</button>
+  </p>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-label">Modules validés</div><div class="stat-value" id="s-done">0/18</div><div class="stat-sub">étapes complétées</div></div>
+    <div class="stat"><div class="stat-label">Heures investies</div><div class="stat-value" id="s-hours">0h</div><div class="stat-sub">sur ~200h estimées</div></div>
+    <div class="stat"><div class="stat-label">Phase actuelle</div><div class="stat-value" id="s-phase">1/4</div><div class="stat-sub" id="s-phase-name">Fondamentaux</div></div>
+    <div class="stat"><div class="stat-label">Progression</div><div class="stat-value" id="s-pct">0%</div><div class="stat-sub">vers le master</div></div>
+  </div>
+  <div class="global-bar-wrap">
+    <div class="global-bar-label"><span>Débutant</span><span>Niveau DAF / Conseil</span></div>
+    <div class="global-bar"><div class="global-bar-fill" id="global-fill" style="width:0%"></div></div>
+  </div>
+  <div id="phases-container"></div>
+  <div class="footer">
+    <button class="reset-btn" onclick="resetAll()">Réinitialiser la progression</button>
+    <span class="footer-tip">Progression synchronisée sur tous tes appareils</span>
+  </div>
+</div>
+
+<script>
+const API_KEY='$2a$10$N8iQjGp/1urVsG5OIpCgOebZ5CIkLC1UTqXb84I5PA6SNOk29kHFC';
+let BIN_ID=localStorage.getItem('jsonbin_id')||null;
+let saveTimer=null;
+let state={};
+
+async function loadFromCloud(){
+  setStatus('loading');
+  try{
+    if(!BIN_ID){
+      const local=localStorage.getItem('roadmap_daf_v5');
+      if(local)state=JSON.parse(local);
+      await createBin();
+    }else{
+      const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+      const data=await res.json();
+      state=data.record||{};
+    }
+    setStatus('ok');render();updateStats();
+  }catch(e){
+    const local=localStorage.getItem('roadmap_daf_v5');
+    if(local)state=JSON.parse(local);
+    setStatus('error');render();updateStats();
+  }
+}
+async function createBin(){
+  const res=await fetch('https://api.jsonbin.io/v3/b',{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':'roadmap-ami','X-Bin-Private':'true'},body:JSON.stringify(state)});
+  const data=await res.json();
+  BIN_ID=data.metadata.id;
+  localStorage.setItem('jsonbin_id',BIN_ID);
+}
+async function saveToCloud(){
+  setStatus('saving');
+  try{
+    if(!BIN_ID)await createBin();
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(state)});
+    localStorage.setItem('roadmap_daf_v5',JSON.stringify(state));
+    setStatus('ok');
+  }catch(e){localStorage.setItem('roadmap_daf_v5',JSON.stringify(state));setStatus('error');}
+}
+async function forceSync(){
+  setStatus('loading');
+  document.getElementById('phases-container').innerHTML='';
+  try{
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+    const data=await res.json();
+    state=data.record||{};
+    setStatus('ok');render();updateStats();
+  }catch(e){
+    const local=localStorage.getItem('roadmap_daf_v5');
+    if(local)state=JSON.parse(local);
+    setStatus('error');render();updateStats();
+  }
+}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveToCloud,1000);}
+function setStatus(s){
+  const el=document.getElementById('sync-status');if(!el)return;
+  if(s==='ok'){el.className='sync-status sync-ok';el.textContent='✓ Synchronisé';}
+  else if(s==='saving'||s==='loading'){el.className='sync-status sync-saving';el.textContent='⟳ '+(s==='saving'?'Sauvegarde...':'Chargement...');}
+  else{el.className='sync-status sync-error';el.textContent='⚠ Hors ligne (local)';}
+}
+
+const CAS = {
+
+cas1: `<div class="cas-header">Cas pratique — Phase 1 · Lecture des états financiers · Mécatech Industries</div>
+<div class="cas-body">
+<div class="cas-note">Niveau : très guidé · Pas d'Excel · Pas de calcul · 100% lecture et interprétation · Durée estimée : 2h</div>
+
+<h4>Contexte — Mécatech Industries</h4>
+<p>Mécatech Industries est une PME française qui fabrique des pièces métalliques pour l'industrie automobile. Elle emploie 180 personnes, réalise un chiffre d'affaires de 42 M€ et est implantée dans la région de Lyon. Son directeur général te consulte : il veut savoir si la santé financière de son entreprise lui permet d'embaucher 20 salariés supplémentaires l'année prochaine.</p>
+<p>Voici ses états financiers pour l'année N (en milliers d'euros) :</p>
+
+<h4>Compte de résultat (année N)</h4>
+<table>
+  <tr><th>Poste</th><th>Montant (k€)</th></tr>
+  <tr><td>Chiffre d'affaires</td><td>42 000</td></tr>
+  <tr><td>Achats et charges externes</td><td>– 24 500</td></tr>
+  <tr><td><strong>Marge brute</strong></td><td><strong>17 500</strong></td></tr>
+  <tr><td>Charges de personnel</td><td>– 11 200</td></tr>
+  <tr><td>Dotations aux amortissements</td><td>– 1 800</td></tr>
+  <tr><td>Autres charges d'exploitation</td><td>– 900</td></tr>
+  <tr><td><strong>Résultat d'exploitation (EBIT)</strong></td><td><strong>3 600</strong></td></tr>
+  <tr><td>Charges financières (intérêts)</td><td>– 480</td></tr>
+  <tr><td><strong>Résultat avant impôt</strong></td><td><strong>3 120</strong></td></tr>
+  <tr><td>Impôt sur les sociétés (25%)</td><td>– 780</td></tr>
+  <tr><td><strong>Résultat net</strong></td><td><strong>2 340</strong></td></tr>
+</table>
+
+<h4>Bilan simplifié (fin d'année N)</h4>
+<table>
+  <tr><th>ACTIF</th><th>Montant (k€)</th><th>PASSIF</th><th>Montant (k€)</th></tr>
+  <tr><td>Immobilisations nettes</td><td>9 200</td><td>Capitaux propres</td><td>11 400</td></tr>
+  <tr><td>Stocks</td><td>3 800</td><td>Dettes financières long terme</td><td>6 000</td></tr>
+  <tr><td>Créances clients</td><td>5 600</td><td>Dettes fournisseurs</td><td>4 200</td></tr>
+  <tr><td>Trésorerie</td><td>3 200</td><td>Autres dettes court terme</td><td>200</td></tr>
+  <tr><td><strong>Total actif</strong></td><td><strong>21 800</strong></td><td><strong>Total passif</strong></td><td><strong>21 800</strong></td></tr>
+</table>
+
+<h4>Questions — réponds à chacune par écrit avant de demander une correction à Claude</h4>
+<ul>
+  <li><span class="pill pill-blue">Q1</span> Quel est le chiffre d'affaires de Mécatech ? À quoi correspond-il concrètement dans leur activité ?</li>
+  <li><span class="pill pill-blue">Q2</span> La marge brute est de 17 500 k€. Qu'est-ce que ça représente en % du CA ? Est-ce que c'est bon pour une industrie manufacturière ?</li>
+  <li><span class="pill pill-blue">Q3</span> L'entreprise est-elle rentable ? Justifie avec les bons chiffres.</li>
+  <li><span class="pill pill-blue">Q4</span> Regarde la trésorerie et les dettes financières. Est-ce que Mécatech a les moyens de rembourser sa dette si elle le devait demain ?</li>
+  <li><span class="pill pill-blue">Q5</span> Les créances clients sont de 5 600 k€ et les dettes fournisseurs de 4 200 k€. Qu'est-ce que ça t'indique sur la gestion du cycle client/fournisseur ?</li>
+  <li><span class="pill pill-blue">Q6</span> Le directeur veut embaucher 20 personnes. Ça représente environ 1 100 k€ de charges supplémentaires par an. En regardant uniquement les états financiers, est-ce que tu lui conseilles de le faire ? Pourquoi ?</li>
+</ul>
+<div class="cas-warn">Une fois tes réponses rédigées, envoie-les à Claude avec le message : "Corrige mon cas pratique Phase 1 — Mécatech" et colle tes réponses.</div>
+</div>`,
+
+cas2: `<div class="cas-header">Cas pratique — Phase 2 · Diagnostic financier complet · Mécatech Industries (suite)</div>
+<div class="cas-body">
+<div class="cas-note">Niveau : semi-guidé · Excel requis · Tu trouves les formules toi-même · Durée estimée : 4h</div>
+
+<h4>Contexte — suite du cas Mécatech</h4>
+<p>Tu reprends les mêmes données financières de Mécatech Industries (Phase 1). Cette fois tu as accès aux données sur 2 ans pour voir l'évolution. Le directeur te demande maintenant un diagnostic financier structuré, pas juste une lecture.</p>
+
+<h4>Données comparatives N-1 / N</h4>
+<table>
+  <tr><th>Indicateur</th><th>Année N-1</th><th>Année N</th></tr>
+  <tr><td>Chiffre d'affaires (k€)</td><td>38 500</td><td>42 000</td></tr>
+  <tr><td>Marge brute (k€)</td><td>15 800</td><td>17 500</td></tr>
+  <tr><td>EBITDA (k€)</td><td>4 600</td><td>5 400</td></tr>
+  <tr><td>EBIT (k€)</td><td>2 900</td><td>3 600</td></tr>
+  <tr><td>Résultat net (k€)</td><td>1 850</td><td>2 340</td></tr>
+  <tr><td>Stocks (k€)</td><td>3 200</td><td>3 800</td></tr>
+  <tr><td>Créances clients (k€)</td><td>4 900</td><td>5 600</td></tr>
+  <tr><td>Dettes fournisseurs (k€)</td><td>3 600</td><td>4 200</td></tr>
+  <tr><td>Actif courant (k€)</td><td>11 200</td><td>12 600</td></tr>
+  <tr><td>Passif courant (k€)</td><td>3 900</td><td>4 400</td></tr>
+  <tr><td>Capitaux propres (k€)</td><td>9 800</td><td>11 400</td></tr>
+  <tr><td>Dette nette (k€)</td><td>3 200</td><td>2 800</td></tr>
+  <tr><td>Capital employé (k€)</td><td>13 000</td><td>14 200</td></tr>
+  <tr><td>Free Cash Flow (k€)</td><td>1 400</td><td>2 100</td></tr>
+</table>
+
+<h4>Étape 1 — Structure ton fichier Excel</h4>
+<p>Crée un fichier avec 2 onglets :</p>
+<ul>
+  <li><span class="pill pill-blue">Onglet 1</span> <strong>Données brutes</strong> — Recopie le tableau ci-dessus</li>
+  <li><span class="pill pill-blue">Onglet 2</span> <strong>Ratios</strong> — Calcule les 8 ratios ci-dessous pour N-1 et N, puis calcule l'évolution en %</li>
+</ul>
+
+<h4>Étape 2 — Les 8 ratios à calculer (formules à trouver toi-même)</h4>
+<table>
+  <tr><th>Ratio</th><th>Ce qu'il mesure</th><th>Résultat N-1</th><th>Résultat N</th><th>Évolution</th></tr>
+  <tr><td>Taux de marge brute</td><td>Efficacité commerciale</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>Taux de marge EBITDA</td><td>Rentabilité opérationnelle</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>Ratio de liquidité générale</td><td>Capacité à payer court terme</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>BFR en jours de CA</td><td>Poids du cycle d'exploitation</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>Levier financier (Dette nette / EBITDA)</td><td>Niveau d'endettement</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>ROE</td><td>Rentabilité des fonds propres</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>ROCE</td><td>Rentabilité du capital employé</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+  <tr><td>Cash conversion (FCF / EBITDA)</td><td>Qualité des bénéfices</td><td>À calculer</td><td>À calculer</td><td>À calculer</td></tr>
+</table>
+
+<h4>Étape 3 — Rédige un diagnostic d'une demi-page</h4>
+<ul>
+  <li>Structure : <strong>2 points forts · 2 points de vigilance · 1 conclusion</strong></li>
+  <li>Chaque point doit s'appuyer sur un ratio calculé — pas d'affirmation sans chiffre</li>
+  <li>Réponds à la question : est-ce que Mécatech peut embaucher ET investir dans une nouvelle machine à 800 k€ cette année ?</li>
+</ul>
+<div class="cas-warn">Envoie ton fichier Excel + ton diagnostic à Claude : "Corrige mon cas pratique Phase 2 — Mécatech"</div>
+</div>`,
+
+cas3: `<div class="cas-header">Cas pratique — Phase 3 · Valorisation & stratégie · Mécatech Industries (conclusion)</div>
+<div class="cas-body">
+<div class="cas-note">Niveau : peu guidé · Excel requis · Large autonomie sur les choix d'hypothèses · Durée estimée : 5h</div>
+
+<h4>Contexte — décision stratégique</h4>
+<p>Tu connais maintenant bien Mécatech. Le directeur général te présente un projet : racheter un concurrent, <strong>Précimetal SAS</strong>, pour 4 500 k€. Pour financer cette acquisition, il envisage de contracter un emprunt bancaire supplémentaire de 3 500 k€ sur 5 ans à 4,5% de taux.</p>
+<p>Ta mission : évaluer si Mécatech est bien valorisée, si elle a la capacité financière de supporter cette dette, et formuler une recommandation argumentée.</p>
+
+<h4>Données complémentaires pour la valorisation</h4>
+<table>
+  <tr><th>Élément</th><th>Valeur</th></tr>
+  <tr><td>Free Cash Flow année N</td><td>2 100 k€</td></tr>
+  <tr><td>Taux de croissance historique du CA (3 ans)</td><td>+5% / an</td></tr>
+  <tr><td>EBITDA année N</td><td>5 400 k€</td></tr>
+  <tr><td>Multiple EBITDA du secteur (comparables)</td><td>6x à 7x</td></tr>
+  <tr><td>Dette nette actuelle</td><td>2 800 k€</td></tr>
+  <tr><td>WACC à utiliser</td><td>8%</td></tr>
+  <tr><td>Taux de croissance perpétuelle (valeur terminale)</td><td>2%</td></tr>
+</table>
+
+<h4>Ce que tu dois construire dans Excel (structure libre — c'est à toi de l'organiser)</h4>
+<ul>
+  <li><span class="pill pill-purple">Partie 1</span> <strong>DCF</strong> — Projette les FCF sur 5 ans, calcule la valeur terminale, actualise tout, obtiens la valeur d'entreprise. Compare à la valeur par les multiples. Quelle est la fourchette de valorisation de Mécatech ?</li>
+  <li><span class="pill pill-purple">Partie 2</span> <strong>Capacité d'endettement</strong> — Si Mécatech contracte 3 500 k€ de dette supplémentaire, quel sera son nouveau ratio Dette nette / EBITDA ? Est-ce soutenable ? Quelle sera la charge annuelle d'intérêts et comment ça impacte le résultat net ?</li>
+  <li><span class="pill pill-purple">Partie 3</span> <strong>Analyse de sensibilité</strong> — Que se passe-t-il si la croissance tombe à 2% au lieu de 5% ? Et si l'EBITDA baisse de 15% suite à l'intégration du concurrent ? Montre 2 scénarios.</li>
+</ul>
+
+<h4>Livrable attendu — mémo d'une page</h4>
+<ul>
+  <li><strong>Valorisation de Mécatech</strong> : fourchette DCF et multiples</li>
+  <li><strong>Analyse de la capacité d'endettement</strong> : peut-elle absorber la dette ?</li>
+  <li><strong>Risques identifiés</strong> : 2 scénarios de stress</li>
+  <li><strong>Recommandation finale</strong> : oui ou non à l'acquisition, et à quelles conditions</li>
+</ul>
+<div class="cas-warn">Envoie ton Excel + mémo à Claude : "Corrige mon cas pratique Phase 3 — Mécatech acquisition"</div>
+</div>`,
+
+cas4: `<div class="cas-header">Cas pratique — Phase 4 · Diagnostic complet sur 3 entreprises réelles</div>
+<div class="cas-body">
+<div class="cas-note">Niveau : guidé sur la navigation, autonome sur les calculs et interprétations · Excel requis · Durée estimée : 6–7h par entreprise · 3 entreprises = ~20h</div>
+
+<h4>Les 3 entreprises — 3 situations radicalement différentes</h4>
+<table>
+  <tr><th>Entreprise</th><th>Ticker</th><th>Secteur</th><th>Profil financier</th></tr>
+  <tr><td><strong>Vicat</strong></td><td>VCT.PA</td><td>Matériaux / ciment</td><td class="signal-ok">Entreprise saine et rentable</td></tr>
+  <tr><td><strong>Sword Group</strong></td><td>SWP.PA</td><td>Services numériques</td><td class="signal-warn">Bonne apparence — signaux à creuser</td></tr>
+  <tr><td><strong>Clariane</strong></td><td>CLARI.PA</td><td>Maisons de retraite / santé</td><td class="signal-bad">Stress financier réel — restructuration en cours</td></tr>
+</table>
+
+<h4>Comment naviguer sur Yahoo Finance — même méthode pour les 3 entreprises</h4>
+<ul>
+  <li>Va sur <strong>fr.finance.yahoo.com</strong> → tape le ticker dans la barre de recherche → appuie sur Entrée</li>
+  <li>Dans le menu horizontal sous le nom de l'entreprise, clique sur <strong>Financials</strong></li>
+  <li>Tu vois 3 onglets : <strong>Income Statement</strong> (compte de résultat) · <strong>Balance Sheet</strong> (bilan) · <strong>Cash Flow Statement</strong> (flux de trésorerie)</li>
+  <li>Par défaut les données sont affichées en <strong>annuel</strong> — assure-toi que "Annual" est sélectionné (pas "Quarterly")</li>
+  <li>Yahoo affiche <strong>4 années</strong> côte à côte — prends les <strong>3 dernières</strong></li>
+  <li>Les chiffres sont en milliers (k) ou millions (M) selon les entreprises — <strong>vérifie l'unité indiquée en haut du tableau</strong> avant de recopier</li>
+</ul>
+
+<h4>Tableau Excel à construire — structure identique pour les 3 entreprises</h4>
+<p>Crée un fichier Excel par entreprise avec 3 onglets. Les noms de lignes ci-dessous correspondent exactement aux libellés que tu verras sur Yahoo Finance.</p>
+
+<h4>Onglet 1 — Données brutes (à remplir avec les chiffres Yahoo Finance)</h4>
+<table>
+  <tr><th>Ligne à récupérer</th><th>Onglet Yahoo Finance</th><th>Année N-2</th><th>Année N-1</th><th>Année N</th></tr>
+  <tr><td>Total Revenue</td><td>Income Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>Gross Profit</td><td>Income Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>EBITDA</td><td>Income Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>Operating Income (EBIT)</td><td>Income Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>Net Income</td><td>Income Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>Interest Expense</td><td>Income Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>Total Assets</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Total Stockholders Equity</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Total Debt</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Current Assets</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Current Liabilities</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Inventory</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Accounts Receivable</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Accounts Payable</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Cash And Cash Equivalents</td><td>Balance Sheet</td><td></td><td></td><td></td></tr>
+  <tr><td>Free Cash Flow</td><td>Cash Flow Statement</td><td></td><td></td><td></td></tr>
+  <tr><td>Capital Expenditure</td><td>Cash Flow Statement</td><td></td><td></td><td></td></tr>
+</table>
+
+<h4>Onglet 2 — Les 8 ratios (formules à trouver toi-même, calculer sur les 3 ans)</h4>
+<table>
+  <tr><th>Ratio</th><th>Ce qu'il mesure</th><th>N-2</th><th>N-1</th><th>N</th><th>Tendance</th></tr>
+  <tr><td>Taux de marge brute</td><td>Efficacité commerciale</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>Taux de marge EBITDA</td><td>Rentabilité opérationnelle</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>Ratio de liquidité générale</td><td>Capacité à payer court terme</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>BFR en jours de CA</td><td>Poids du cycle d'exploitation</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>Levier (Dette nette / EBITDA)</td><td>Niveau d'endettement</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>ROE</td><td>Rentabilité des fonds propres</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>ROCE</td><td>Rentabilité du capital employé</td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>Cash conversion (FCF / EBITDA)</td><td>Qualité des bénéfices</td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h4>Onglet 3 — DCF simplifié (structure libre — même méthode que Phase 3)</h4>
+<ul>
+  <li>FCF de base = Free Cash Flow de l'année N récupéré sur Yahoo Finance</li>
+  <li>Projette sur 5 ans avec le taux de croissance historique du CA comme hypothèse</li>
+  <li>WACC : utilise <strong>8%</strong> pour Vicat et Sword, <strong>10%</strong> pour Clariane (prime de risque supplémentaire)</li>
+  <li>Croissance perpétuelle : <strong>2%</strong> pour les 3</li>
+  <li>Compare ta valeur d'entreprise obtenue à la <strong>capitalisation boursière</strong> visible sur la page principale Yahoo Finance</li>
+</ul>
+
+<h4>Questions directrices par entreprise — à répondre dans ton mémo</h4>
+<table>
+  <tr><th>Entreprise</th><th>Questions spécifiques à traiter</th></tr>
+  <tr><td><strong>Vicat</strong></td><td>La rentabilité est-elle stable ou en progression sur 3 ans ? Le Capital Expenditure (capex) représente quel % du CA — est-ce cohérent avec une industrie lourde ? La dette nette est-elle bien couverte par le FCF ? Y a-t-il des signaux que la croissance future pourrait ralentir ?</td></tr>
+  <tr><td><strong>Sword Group</strong></td><td>Le CA croît — est-ce que le FCF croît dans les mêmes proportions ? La marge EBITDA est-elle stable sur 3 ans ou se comprime-t-elle ? Le BFR augmente-t-il plus vite que le CA (signal d'alerte) ? Qu'est-ce que ça dit sur la qualité de la croissance ?</td></tr>
+  <tr><td><strong>Clariane</strong></td><td>Quel est le ratio Dette nette / EBITDA — est-il soutenable ? Les charges financières (Interest Expense) représentent quel % de l'EBIT — l'entreprise peut-elle servir sa dette ? Le FCF est-il positif ou négatif ? Si tu étais DAF, quelles seraient tes 3 priorités immédiates pour stabiliser la situation ?</td></tr>
+</table>
+
+<div class="cas-danger">Pour Clariane : les chiffres sont en milliards d'euros. Le levier dépasse 4x l'EBITDA — c'est une situation de stress réelle. Ne te contente pas de constater, formule une recommandation concrète de restructuration financière.</div>
+
+<h4>Mémo d'une page — structure attendue (identique pour les 3)</h4>
+<ul>
+  <li><strong>1. Contexte</strong> (3 lignes) — secteur, taille, positionnement</li>
+  <li><strong>2. Points forts</strong> (2–3 bullets avec chiffres)</li>
+  <li><strong>3. Points de vigilance</strong> (2–3 bullets avec chiffres)</li>
+  <li><strong>4. Valorisation</strong> (2 lignes) — DCF vs capitalisation boursière</li>
+  <li><strong>5. Recommandation</strong> (1 phrase) — priorité absolue si tu es le conseiller DAF</li>
+</ul>
+
+<div class="cas-warn">Envoie ton Excel + mémo à Claude entreprise par entreprise : "Corrige mon cas pratique Phase 4 — Vicat" puis Sword puis Clariane. Un par un pour un retour détaillé sur chaque.</div>
+</div>`
+
+};
+
+const PHASES=[
+  {id:'p1',color:'#1D9E75',colorLight:'#E1F5EE',colorText:'#085041',
+   title:'Phase 1 — Fondamentaux',sub:'Comptabilité · Finance d\'entreprise · Financement',badge:'Semaines 1–4',prereq:null,
+   modules:[
+    {id:'m1',name:'Bases de la comptabilité',desc:'Bilan, compte de résultat, flux de trésorerie. Le socle absolu pour lire et analyser les états financiers d\'un client.',time:'15h',type:'Cours interactif',lang:'Français',
+     links:[{url:'https://openclassrooms.com/fr/courses/4801106-initiez-vous-a-la-comptabilite',label:'OpenClassrooms — Initiez-vous à la comptabilité →'}]},
+    {id:'m2',name:'Finance d\'entreprise — bases',desc:'Valeur temps de l\'argent, actualisation, VAN, TRI, coût du capital. Suis les 3 unités dans l\'ordre — ignore les autres (housing, taxes, derivatives : pas utiles pour ton profil).',time:'20h',type:'Cours interactif',lang:'Anglais',
+     links:[
+       {url:'https://www.khanacademy.org/economics-finance-domain/core-finance/interest-tutorial',label:'Khan — Unit 1 : Interest and debt →'},
+       {url:'https://www.khanacademy.org/economics-finance-domain/core-finance/accounting-and-financial-stateme',label:'Khan — Unit 5 : Accounting & financial statements →'},
+       {url:'https://www.khanacademy.org/economics-finance-domain/core-finance/stock-and-bonds',label:'Khan — Unit 6 : Stocks and bonds →'},
+     ]},
+    {id:'m3',name:'Trésorerie & gestion du BFR',desc:'Besoin en fonds de roulement, cycle d\'exploitation, gestion des flux. Sujet n°1 du DAF externe. Vidéos enregistrées du cours HEC, directement accessibles.',time:'15h',type:'Vidéos cours HEC',lang:'Français',
+     links:[{url:'https://www.vernimmen.net/Entrainement/Analyse_Financiere.php',label:'Vernimmen — Cours vidéo analyse financière (HEC) →'}]},
+    {id:'m4',name:'Financement d\'entreprise — les bases',desc:'Dettes, fonds propres, types de financements, logique bancaire. Plateforme gratuite créée par des diplômés HEC, utilisée par des profils recrutés chez KPMG, Deloitte et BNP.',time:'10h',type:'Cours vidéo + quiz',lang:'Français',
+     links:[{url:'https://www.trainy.co',label:'Trainy.co — Finance & conseil (gratuit, créé par HEC) →'}],
+     note:'Sélectionne les modules "Finance d\'entreprise" et "Financement" dans le menu.'},
+    {id:'m1c',name:'Cas pratique — Phase 1',desc:'Lecture et interprétation des états financiers de Mécatech Industries. Pas d\'Excel, pas de calcul complexe — juste comprendre ce que les chiffres racontent.',time:'2h',type:'Cas guidé',lang:'Français',cas:'cas1',
+     links:[]},
+  ]},
+  {id:'p2',color:'#185FA5',colorLight:'#E6F1FB',colorText:'#0C447C',
+   title:'Phase 2 — Analyse & modélisation',sub:'Ratios · Diagnostic · Excel financier',badge:'Semaines 5–8',prereq:'Prérequis : Phase 1 complétée',
+   modules:[
+    {id:'m5',name:'Ratios & diagnostic financier',desc:'Liquidité, solvabilité, rentabilité, levier. Lire uniquement les chapitres 12 (analyse financière) et 16 (rentabilité) du Vernimmen — les 2 chapitres directement opérationnels pour un DAF.',time:'20h',type:'Cours vidéo + lectures ciblées',lang:'Français',
+     links:[
+       {url:'https://www.vernimmen.net/Entrainement/Analyse_Financiere.php',label:'Vernimmen — Cours vidéo analyse financière →'},
+       {url:'https://www.trainy.co',label:'Trainy.co — Module analyse financière →'},
+     ]},
+    {id:'m6',name:'Finance d\'entreprise — Coursera CFI',desc:'Introduction complète : états financiers, ratios, DCF de base. Clique sur "S\'inscrire gratuitement" puis choisis "Auditer le cours" pour accès gratuit.',time:'15h',type:'MOOC vidéo + quiz',lang:'Anglais',
+     links:[{url:'https://www.coursera.org/learn/corporate-finance-fundamentals',label:'Coursera CFI — Corporate Finance Fundamentals (audit gratuit) →'}]},
+    {id:'m7',name:'Business & Financial Modeling — Wharton',desc:'Modélisation Excel, analyse de sensibilité, scénarios. Clique sur "S\'inscrire gratuitement" puis "Auditer la spécialisation".',time:'30h',type:'MOOC + TP Excel',lang:'Anglais',
+     links:[{url:'https://www.coursera.org/specializations/business-financial-modeling',label:'Coursera Wharton — Financial Modeling (audit gratuit) →'}]},
+    {id:'m8',name:'Tableaux de bord & reporting financier',desc:'Construire des dashboards de pilotage (KPIs, cash, résultat). Outil de communication principal du DAF externe.',time:'10h',type:'Tutoriels pratiques',lang:'Français',
+     links:[{url:'https://openclassrooms.com/fr/courses/4525361-realisez-des-dashboards-avec-power-bi',label:'OpenClassrooms — Dashboards Power BI →'}]},
+    {id:'m2c',name:'Cas pratique — Phase 2',desc:'Diagnostic financier complet sur Mécatech : tu construis le tableau des 8 ratios dans Excel sur 2 ans, tu identifies les tendances et tu formules un diagnostic structuré.',time:'4h',type:'Cas semi-guidé · Excel',lang:'Français',cas:'cas2',
+     links:[]},
+  ]},
+  {id:'p3',color:'#7F77DD',colorLight:'#EEEDFE',colorText:'#3C3489',
+   title:'Phase 3 — Valorisation & stratégie financière',sub:'DCF · Structure du capital · Conseil',badge:'Semaines 9–14',prereq:'Prérequis : maîtriser la modélisation (Phase 2)',
+   modules:[
+    {id:'m9',name:'Valorisation d\'entreprises — Damodaran (NYU)',desc:'25 vidéos courtes (12–20 min) sur le DCF, les multiples, l\'évaluation d\'actifs. Slides téléchargeables + tests corrigés inclus. 100% gratuit, aucune inscription.',time:'30h',type:'Vidéos + tests corrigés',lang:'Anglais',
+     links:[{url:'https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcastvalonline.htm',label:'NYU Stern — Damodaran Valuation Online Course →'}]},
+    {id:'m10',name:'Corporate Finance MIT (15.414)',desc:'Structure du capital, politique de dividendes, fusions-acquisitions, gestion du risque. Niveau master, slides + exercices corrigés téléchargeables.',time:'25h',type:'Cours + exercices',lang:'Anglais',
+     links:[{url:'https://ocw.mit.edu/courses/15-414-financial-management-summer-2003/',label:'MIT OpenCourseWare — Financial Management →'}]},
+    {id:'m11',name:'Strategy & Finance — HEC Paris',desc:'Lien entre décisions stratégiques et finance. Clique sur "S\'inscrire gratuitement" puis "Auditer le cours" pour accès gratuit aux vidéos.',time:'20h',type:'MOOC vidéo + cas',lang:'Français/Anglais',
+     links:[{url:'https://www.coursera.org/learn/corporate-strategy',label:'Coursera HEC — Strategy (audit gratuit) →'}]},
+    {id:'m12',name:'Plan de financement & business plan',desc:'Construire un plan de financement à 3 ans, structurer un business plan. Mission récurrente du DAF externe.',time:'10h',type:'Cours vidéo + guides',lang:'Français',
+     links:[{url:'https://www.bpifrance-universite.fr/',label:'BPIFrance Université — formations gratuites →'}]},
+    {id:'m3c',name:'Cas pratique — Phase 3',desc:'Valorisation et décision stratégique sur Mécatech : DCF, analyse de la capacité d\'endettement pour une acquisition, 2 scénarios de stress. Structure libre, mémo de recommandation.',time:'5h',type:'Cas peu guidé · Excel libre',lang:'Français',cas:'cas3',
+     links:[]},
+  ]},
+  {id:'p4',color:'#BA7517',colorLight:'#FAEEDA',colorText:'#633806',
+   title:'Phase 4 — Pratique & posture conseil',sub:'Cas réels guidés · Veille · Entretiens',badge:'Semaines 15–20',prereq:'Prérequis : Phases 1–3 validées',
+   modules:[
+    {id:'m4c',name:'Cas pratique — Phase 4 · 3 entreprises réelles',desc:'Vicat (saine) · Sword Group (signaux à creuser) · Clariane (stress financier réel). Autonomie totale — même niveau qu\'un analyste junior en cabinet.',time:'20h',type:'Cas autonomie totale · Excel',lang:'Français',cas:'cas4',
+     links:[{url:'https://fr.finance.yahoo.com',label:'Yahoo Finance — données gratuites →'}]},
+    {id:'m14',name:'Veille économique hebdomadaire',desc:'15 articles gratuits/mois avec un compte HBR gratuit. Créer un compte sur hbr.org → "Sign up". Compléter avec Les Échos (5 articles gratuits/jour).',time:'Continu',type:'Veille',lang:'Français/Anglais',
+     links:[
+       {url:'https://hbr.org/topic/subject/finance',label:'HBR — Finance (compte gratuit requis) →'},
+       {url:'https://www.lesechos.fr/finance-marches',label:'Les Échos — Finance & marchés →'},
+     ]},
+    {id:'m15',name:'Vernimmen — 5 chapitres essentiels',desc:'Lire uniquement : Ch.12 Analyse financière · Ch.16 Rentabilité · Ch.21 BFR · Ch.32 Structure du capital · Ch.40 Évaluation. Ces 5 couvrent 80% de ce dont tu auras besoin.',time:'15h',type:'Manuel de référence ciblé',lang:'Français',
+     links:[{url:'https://www.vernimmen.net/Vernimmen/Resumes_des_chapitres.php',label:'Vernimmen — Résumés des chapitres →'}]},
+    {id:'m16',name:'Questions d\'entraînement Vernimmen',desc:'467 questions avec corrigés. Faire uniquement : Analyse financière · BFR · Structure du capital · Évaluation.',time:'10h',type:'Quiz avec corrigés',lang:'Français',
+     links:[{url:'https://www.vernimmen.net/Entrainement/',label:'Vernimmen — 467 questions d\'entraînement →'}]},
+    {id:'m17',name:'20 questions d\'entretien finance & conseil',desc:'Technicals (DCF, BFR, plan de financement), mises en situation DAF, questions comportementales.',time:'10h',type:'Q&A guidées',lang:'Anglais',
+     links:[{url:'https://breakingintowallstreet.com/free/',label:'BIWS Free Resources →'}]},
+    {id:'m18',name:'Mock entretien DAF / conseil',desc:'Simule un entretien complet avec Claude : diagnostic financier d\'une PME, questions techniques, présentation d\'un mémo.',time:'5h',type:'Pratique orale',lang:'Français',
+     links:[{url:'https://claude.ai',label:'Ouvrir Claude pour le mock entretien →'}]},
+  ]},
+];
+
+const TOTAL=PHASES.reduce((s,p)=>s+p.modules.length,0);
+
+function updateStats(){
+  let done=0,hours=0;
+  PHASES.forEach(p=>p.modules.forEach(m=>{if(state[m.id]?.done)done++;hours+=parseFloat(state[m.id]?.hours||0)}));
+  const pct=Math.round(done/TOTAL*100);
+  document.getElementById('s-done').textContent=done+'/'+TOTAL;
+  document.getElementById('s-hours').textContent=Math.round(hours)+'h';
+  document.getElementById('s-pct').textContent=pct+'%';
+  document.getElementById('global-fill').style.width=pct+'%';
+  let cp=1,cn='Fondamentaux';
+  PHASES.forEach((p,i)=>{
+    const pd=p.modules.filter(m=>state[m.id]?.done).length;
+    if(pd===p.modules.length&&i<PHASES.length-1){cp=i+2;cn=PHASES[i+1].title.split('—')[1].trim()}
+    else if(pd>0&&cp<=i+1){cp=i+1;cn=p.title.split('—')[1].trim()}
+  });
+  document.getElementById('s-phase').textContent=cp+'/4';
+  document.getElementById('s-phase-name').textContent=cn;
+  PHASES.forEach(p=>{
+    const pd=p.modules.filter(m=>state[m.id]?.done).length;
+    const b=document.getElementById('bar-'+p.id);if(b)b.style.width=(pd/p.modules.length*100)+'%';
+    const pg=document.getElementById('prog-'+p.id);if(pg)pg.textContent=pd+'/'+p.modules.length;
+  });
+}
+function toggleModule(id){
+  state[id]=state[id]||{};state[id].done=!state[id].done;
+  document.getElementById('chk-'+id).classList.toggle('done',state[id].done);
+  document.getElementById('name-'+id).classList.toggle('done',state[id].done);
+  scheduleSave();updateStats();
+}
+function setHours(id,val){state[id]=state[id]||{};state[id].hours=parseFloat(val)||0;scheduleSave();updateStats();}
+function togglePhase(id){
+  const b=document.getElementById('body-'+id);const c=document.getElementById('chev-'+id);
+  const o=b.classList.contains('open');b.classList.toggle('open',!o);c.classList.toggle('open',!o);
+}
+function toggleCas(id){document.getElementById('cas-'+id).classList.toggle('open');}
+function resetAll(){
+  if(!confirm('Réinitialiser toute la progression ?'))return;
+  Object.keys(state).forEach(k=>delete state[k]);scheduleSave();
+  document.getElementById('phases-container').innerHTML='';render();updateStats();
+}
+function renderLinks(links,note){
+  if(!links||links.length===0)return note?`<div class="mod-note">${note}</div>`:'';
+  let h='<div class="mod-links">';
+  links.forEach(l=>{h+=`<a class="mod-link" href="${l.url}" target="_blank">${l.label}</a>`});
+  if(note)h+=`<div class="mod-note">${note}</div>`;
+  return h+'</div>';
+}
+function render(){
+  const c=document.getElementById('phases-container');
+  PHASES.forEach((p,pi)=>{
+    const d=document.createElement('div');d.className='phase';
+    d.innerHTML=`
+      <div class="phase-header" onclick="togglePhase('${p.id}')">
+        <div class="phase-dot" style="background:${p.color}"></div>
+        <div class="phase-title-wrap">
+          <div class="phase-title">${p.title}</div>
+          <div class="phase-sub">${p.sub}</div>
+        </div>
+        <span class="phase-badge" style="background:${p.colorLight};color:${p.colorText}">${p.badge}</span>
+        <span class="phase-prog" id="prog-${p.id}">0/${p.modules.length}</span>
+        <span class="phase-chev${pi===0?' open':''}" id="chev-${p.id}">▶</span>
+      </div>
+      <div class="phase-bar-track"><div id="bar-${p.id}" class="phase-bar-fill" style="background:${p.color};width:0%"></div></div>
+      <div class="phase-body${pi===0?' open':''}" id="body-${p.id}">
+        ${p.prereq?`<div class="prereq">${p.prereq}</div>`:''}
+        ${p.modules.map(m=>`
+          <div class="module">
+            <div class="module-row">
+              <div class="check${state[m.id]?.done?' done':''}" id="chk-${m.id}" onclick="toggleModule('${m.id}')"></div>
+              <div class="mod-info">
+                <div class="mod-name${state[m.id]?.done?' done':''}" id="name-${m.id}">${m.name}</div>
+                <div class="mod-tags">
+                  <span class="tag tag-time">${m.time}</span>
+                  <span class="tag tag-type">${m.type}</span>
+                  <span class="tag tag-lang">${m.lang}</span>
+                </div>
+                <div class="mod-desc">${m.desc}</div>
+                ${renderLinks(m.links,m.note)}
+                ${m.cas?`<button class="cas-btn" onclick="toggleCas('${m.id}')">▶ Ouvrir le cas pratique</button><div class="cas-panel" id="cas-${m.id}">${CAS[m.cas]}</div>`:''}
+              </div>
+              <div class="mod-right">
+                <input class="hours-input" type="number" min="0" max="999" step="0.5" placeholder="0" value="${state[m.id]?.hours||''}" onchange="setHours('${m.id}',this.value)">
+                <div class="hours-label">heures<br>passées</div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+loadFromCloud();
+</script>
+</body>
+</html>
